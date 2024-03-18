@@ -16,7 +16,7 @@ Currently availible data:
 
 ## Usage
 
-Running the game with the mod installed will create one `.prom` file per save in the Mod's directory. This can be consumed with node_exporter or windows exporter.
+Running the game with the mod installed will create a web server that serves metrics at `http://loclhost:8585/metrics`.
 
 TODO: grafana agent snippets
 

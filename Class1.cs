@@ -8,6 +8,8 @@ using System.IO;
 using System;
 using StardewValley.TerrainFeatures;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace StardewExporter
 {
@@ -25,7 +27,47 @@ namespace StardewExporter
             hlp.Events.GameLoop.TimeChanged += this.TimeChanged;
             hlp.Events.GameLoop.DayStarted += this.DayStarted;
 
-            this.Monitor.Log(this.FormatMetric("gold", new List<KeyValuePair<string, string>>(), 42), LogLevel.Warn);
+            Task task = Task.Run((Action)Serve);
+            
+            
+        }
+
+        private string promMetrics = "";
+
+        private void Serve()
+        {
+            try
+            {
+                HttpListener listener = new HttpListener();
+                listener.Prefixes.Add("http://localhost:8585/metrics/");
+                listener.Start();
+                this.Monitor.Log("LISTENing", LogLevel.Warn);
+                while (true)
+                {
+                    try
+                    {
+                        HttpListenerContext context = listener.GetContext();
+                        HttpListenerRequest request = context.Request;
+                        // Obtain a response object.
+                        HttpListenerResponse response = context.Response;
+                        response.AppendHeader("Content-Type", "text/plain; version=0.0.4");
+                        // Construct a response.
+                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(promMetrics);
+                        // Get a response stream and write the response to it.
+                        response.ContentLength64 = buffer.Length;
+                        System.IO.Stream output = response.OutputStream;
+                        output.Write(buffer, 0, buffer.Length);
+                        // You must close the output stream.
+                        output.Close();
+                    }catch(Exception e)
+                    {
+                        this.Monitor.Log("!!!!!!!!!" + e.Message, LogLevel.Error);
+                    }
+                }
+            }catch (Exception e)
+            {
+                this.Monitor.Log("!!!!!!!!!"+e.Message, LogLevel.Error);
+            }
         }
 
         private static IDictionary<string, int> seasonVals = new Dictionary<string, int>
@@ -113,7 +155,7 @@ namespace StardewExporter
                 }
                 else
                 {
-                    this.Monitor.Log($"??{kvp.Value.GetType()}", LogLevel.Warn);
+                    //this.Monitor.Log($"??{kvp.Value.GetType()}", LogLevel.Warn);
                 }
             }
 
@@ -175,8 +217,8 @@ namespace StardewExporter
             a("farm_objects", l("kind", "weeds"), weeds);
 
 
-
-            File.WriteAllText(Path.Join(this.Helper.DirectoryPath, $"{Game1.MasterPlayer.farmName}-{Game1.uniqueIDForThisGame}.prom"), build.ToString());
+            this.promMetrics = build.ToString();
+            //File.WriteAllText(Path.Join(this.Helper.DirectoryPath, $"{Game1.MasterPlayer.farmName}-{Game1.uniqueIDForThisGame}.prom"), build.ToString());
         }
 
         private void DayStarted(object sender, DayStartedEventArgs e)
