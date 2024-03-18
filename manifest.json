@@ -1,0 +1,10 @@
+﻿{
+  "Name": "stardew exporter",
+  "Author": "captncraig",
+  "Version": "1.0.0",
+  "Description": "Metrics exporter",
+  "UniqueID": "captncraig.stardewexporter",
+  "EntryDll": "StardewExporter.dll",
+  "MinimumApiVersion": "2.10.0",
+  "UpdateKeys": []
+}
