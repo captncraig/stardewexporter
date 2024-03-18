@@ -1,5 +1,7 @@
 ﻿# Stardew Exporter
 
+![dashboard](dash.png "Sample dashboard")
+
 This is a Stardew Valley mod that exports various stats about your game so they can be consumed by prometheus and graphed.
 
 Currently availible data:
